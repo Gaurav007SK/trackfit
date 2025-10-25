@@ -28,5 +28,5 @@ frontend/dist/
 frontend/build/
 backend/dist/
 
-# MongoDB
-data/
+# MongoDB data directory (not the code data folder)
+# data/
