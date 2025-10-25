@@ -131,7 +131,7 @@ const ActiveWorkout = () => {
           // Small delay to ensure state is updated, then redirect
           setTimeout(() => {
             console.log("Redirecting to home...");
-            window.location.replace("/");
+            navigate("/", { replace: true });
           }, 100);
         } catch (error) {
           console.error("Error completing workout:", error);

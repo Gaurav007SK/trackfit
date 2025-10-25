@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
 
 const TodayWorkout = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [todayData, setTodayData] = useState(null);
   const [workout, setWorkout] = useState(null);
@@ -48,7 +50,7 @@ const TodayWorkout = () => {
       } else if (data._id && data.status === "in-progress") {
         // There's an active in-progress workout - redirect to it
         console.log("Found in-progress workout, redirecting to:", data._id);
-        window.location.href = `/workout?id=${data._id}`;
+        navigate(`/workout?id=${data._id}`);
       } else if (data._id && data.status === "completed") {
         // Today's workout is completed!
         console.log("Today's workout already completed");
@@ -78,7 +80,7 @@ const TodayWorkout = () => {
         exercises: todayData.day.exercises,
       });
       // Navigate to active workout page
-      window.location.href = `/workout?id=${data._id}`;
+      navigate(`/workout?id=${data._id}`);
     } catch (error) {
       console.error("Error starting workout:", error);
       setToast({
@@ -228,7 +230,7 @@ const TodayWorkout = () => {
             Create your first workout plan and start your fitness journey!
           </p>
           <button
-            onClick={() => (window.location.href = "/plans")}
+            onClick={() => navigate("/plans")}
             className="btn-primary inline-flex items-center gap-2">
             <span>Create a Plan</span>
             <span>→</span>
