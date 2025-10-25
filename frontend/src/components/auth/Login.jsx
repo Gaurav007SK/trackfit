@@ -33,8 +33,8 @@ const Login = ({ onSwitchToRegister, onForgotPassword }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-primary p-4">
-      <div className="card p-8 w-full max-w-md animate-fadeIn">
+    <div className="fixed inset-0 flex items-center justify-center gradient-primary p-4 overflow-hidden">
+      <div className="card p-8 w-full max-w-md animate-fadeIn overflow-y-auto max-h-[95vh]">
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg mb-4 animate-float">
             <h1 className="text-5xl">🏋️</h1>

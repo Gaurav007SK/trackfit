@@ -61,7 +61,7 @@ const ForgotPassword = ({ onBack }) => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-teal-600 p-4">
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-teal-600 p-4 overflow-hidden">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -74,8 +74,8 @@ const ForgotPassword = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 p-4 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[95vh] overflow-y-auto">
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold mb-2">🔑</h1>
           <h2 className="text-2xl font-bold text-gray-800">Reset Password</h2>

@@ -78,8 +78,8 @@ const Register = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-purple p-4">
-      <div className="card p-8 w-full max-w-md max-h-[90vh] overflow-y-auto animate-fadeIn">
+    <div className="fixed inset-0 flex items-center justify-center gradient-purple p-4 overflow-hidden">
+      <div className="card p-8 w-full max-w-md max-h-[95vh] overflow-y-auto animate-fadeIn">
         <div className="text-center mb-6">
           <div className="inline-block p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg mb-4 animate-float">
             <h1 className="text-5xl">🏋️</h1>
