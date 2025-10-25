@@ -1,5 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { IoHome, IoCalendarOutline, IoBarChartOutline } from "react-icons/io5";
+import { IoMdPeople } from "react-icons/io";
+import { GiWeightLiftingUp } from "react-icons/gi";
 
 const BottomNav = () => {
   const location = useLocation();
@@ -17,11 +20,11 @@ const BottomNav = () => {
   }
 
   const navItems = [
-    { path: "/", icon: "🏠", label: "Today" },
-    { path: "/plans", icon: "📅", label: "Plans" },
-    { path: "/exercises", icon: "📚", label: "Library" },
-    { path: "/progress", icon: "📊", label: "Progress" },
-    { path: "/social", icon: "👥", label: "Social" },
+    { path: "/", icon: IoHome, label: "Today" },
+    { path: "/plans", icon: IoCalendarOutline, label: "Plans" },
+    { path: "/exercises", icon: GiWeightLiftingUp, label: "Library" },
+    { path: "/progress", icon: IoBarChartOutline, label: "Progress" },
+    { path: "/social", icon: IoMdPeople, label: "Social" },
   ];
 
   return (
@@ -29,6 +32,7 @@ const BottomNav = () => {
       <div className="max-w-md mx-auto flex justify-around">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          const IconComponent = item.icon;
           return (
             <Link
               key={item.path}
@@ -40,7 +44,7 @@ const BottomNav = () => {
               }`}>
               <div
                 className={`relative ${isActive ? "animate-bounce-slow" : ""}`}>
-                <span className="text-2xl mb-1">{item.icon}</span>
+                <IconComponent className="text-2xl mb-1" />
                 {isActive && (
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full shadow-glow"></div>
                 )}

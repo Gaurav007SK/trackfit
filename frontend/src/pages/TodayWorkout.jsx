@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
+import { GiWeightLiftingUp, GiMuscleUp } from "react-icons/gi";
+import {
+  IoCheckmarkCircle,
+  IoFlameSharp,
+  IoListOutline,
+  IoTimeOutline,
+} from "react-icons/io5";
+import { MdCelebration } from "react-icons/md";
 
 const TodayWorkout = () => {
   const navigate = useNavigate();
@@ -94,7 +102,7 @@ const TodayWorkout = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="animate-bounce-slow text-6xl mb-4">🏋️</div>
+          <GiWeightLiftingUp className="animate-bounce-slow text-6xl mb-4 mx-auto text-blue-600" />
           <div className="text-gray-500 font-medium">Loading...</div>
         </div>
       </div>
@@ -126,29 +134,50 @@ const TodayWorkout = () => {
         </div>
 
         {/* Completion Card */}
-        <div className="gradient-success rounded-2xl shadow-soft p-6 text-white mb-6 animate-scale-in">
-          <div className="text-center mb-6">
-            <div className="inline-block p-4 bg-white/20 rounded-full mb-3 animate-bounce-slow">
-              <div className="text-5xl">✓</div>
+        <div className="card p-0 mb-6 overflow-hidden animate-scale-in">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+            {/* Success Icon */}
+            <div className="relative inline-flex items-center justify-center mb-4">
+              <div className="absolute w-20 h-20 bg-white/20 rounded-full animate-ping"></div>
+              <div className="relative w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <IoCheckmarkCircle className="text-5xl text-green-500" />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Workout Complete!</h2>
-            <p className="text-green-100">{completedWorkout.dayName}</p>
+
+            {/* Text */}
+            <h2 className="text-3xl font-bold mb-2">Workout Complete!</h2>
+            <p className="text-green-50 text-lg font-medium">
+              {completedWorkout.dayName}
+            </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="glass-dark rounded-xl p-4">
-              <div className="text-3xl font-bold">{durationMinutes}</div>
-              <div className="text-xs text-green-100 mt-1">Minutes</div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-0 border-t border-gray-100">
+            <div className="p-6 text-center border-r border-gray-100">
+              <IoTimeOutline className="text-3xl text-blue-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800">
+                {durationMinutes}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">Minutes</div>
             </div>
-            <div className="glass-dark rounded-xl p-4">
-              <div className="text-3xl font-bold">{totalSets}</div>
-              <div className="text-xs text-green-100 mt-1">Sets</div>
+            <div className="p-6 text-center border-r border-gray-100">
+              <GiMuscleUp className="text-3xl text-purple-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800">
+                {totalSets}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">Sets</div>
             </div>
-            <div className="glass-dark rounded-xl p-4">
-              <div className="text-3xl font-bold">
+            <div className="p-6 text-center">
+              <GiWeightLiftingUp className="text-3xl text-orange-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-gray-800">
                 {Math.round(totalVolume)}
               </div>
-              <div className="text-xs text-green-100 mt-1">kg Volume</div>
+              <div className="text-sm text-gray-500 mt-1">kg Volume</div>
             </div>
           </div>
         </div>
@@ -157,7 +186,8 @@ const TodayWorkout = () => {
         <div className="card mb-6">
           <div className="p-4 border-b border-gray-100">
             <h3 className="font-bold text-gray-800 flex items-center gap-2">
-              <span>💪</span> Exercises Completed
+              <GiMuscleUp className="text-xl text-blue-600" />
+              <span>Exercises Completed</span>
             </h3>
           </div>
           {completedWorkout.exercises.map((exercise, index) => (
@@ -187,7 +217,7 @@ const TodayWorkout = () => {
 
         {/* Rest Message */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
-          <div className="text-4xl mb-3">🎉</div>
+          <MdCelebration className="text-4xl text-blue-600 mx-auto mb-3" />
           <p className="text-blue-800 font-semibold text-lg">
             Great job today!
           </p>
@@ -221,7 +251,7 @@ const TodayWorkout = () => {
         </div>
         <div className="card p-8 text-center">
           <div className="inline-block p-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl mb-6 animate-float">
-            <div className="text-7xl">💪</div>
+            <GiMuscleUp className="text-7xl text-blue-600" />
           </div>
           <h2 className="text-2xl font-bold mb-3 text-gray-800">
             No Active Plan
@@ -276,14 +306,15 @@ const TodayWorkout = () => {
             onClick={startWorkout}
             className="w-full bg-white text-blue-600 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transform transition-all flex items-center justify-center gap-2">
             <span>Start Workout</span>
-            <span className="text-2xl">🔥</span>
+            <IoFlameSharp className="text-2xl text-orange-500" />
           </button>
         </div>
 
         <div className="card">
           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white rounded-t-2xl">
             <h3 className="font-bold text-gray-800 flex items-center gap-2">
-              <span>📋</span> Planned Exercises
+              <IoListOutline className="text-xl text-blue-600" />
+              <span>Planned Exercises</span>
             </h3>
           </div>
           {todayData.day.exercises?.map((exercise, index) => (

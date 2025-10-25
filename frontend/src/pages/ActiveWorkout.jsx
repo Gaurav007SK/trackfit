@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { IoTimeOutline } from "react-icons/io5";
 
 const ActiveWorkout = () => {
   const navigate = useNavigate();
@@ -204,7 +205,7 @@ const ActiveWorkout = () => {
           <div>
             <h1 className="text-xl font-bold">{workout.dayName}</h1>
             <div className="flex items-center gap-2 text-sm text-blue-100">
-              <span>⏱️</span>
+              <IoTimeOutline />
               <span className="font-mono font-semibold">
                 {formatTime(elapsedTime)}
               </span>

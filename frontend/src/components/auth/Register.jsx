@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { GiWeightLiftingUp } from "react-icons/gi";
 
 const Register = ({ onSwitchToLogin }) => {
   const { register } = useAuth();
@@ -82,7 +83,7 @@ const Register = ({ onSwitchToLogin }) => {
       <div className="card p-8 w-full max-w-md max-h-[95vh] overflow-y-auto animate-fadeIn">
         <div className="text-center mb-6">
           <div className="inline-block p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg mb-4 animate-float">
-            <h1 className="text-5xl">🏋️</h1>
+            <GiWeightLiftingUp className="text-5xl text-white" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             TrackFit

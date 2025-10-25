@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../utils/api";
+import { IoCheckmarkCircle, IoKeyOutline } from "react-icons/io5";
 
 const ForgotPassword = ({ onBack }) => {
   const [step, setStep] = useState(1); // 1: username, 2: security question, 3: new password
@@ -63,7 +64,7 @@ const ForgotPassword = ({ onBack }) => {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-teal-600 p-4 overflow-hidden">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
-          <div className="text-6xl mb-4">✅</div>
+          <IoCheckmarkCircle className="text-6xl text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Password Reset Successful!
           </h2>
@@ -77,7 +78,7 @@ const ForgotPassword = ({ onBack }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 p-4 overflow-hidden">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[95vh] overflow-y-auto">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold mb-2">🔑</h1>
+          <IoKeyOutline className="text-4xl text-orange-600 mx-auto mb-2" />
           <h2 className="text-2xl font-bold text-gray-800">Reset Password</h2>
           <p className="text-gray-600 mt-2">
             {step === 1 && "Enter your username"}

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
+import { IoMdPeople, IoMdSearch, IoMdPerson } from "react-icons/io";
+import { GiTrophy } from "react-icons/gi";
 
 const Social = () => {
   const navigate = useNavigate();
@@ -61,12 +63,13 @@ const Social = () => {
       {/* Search Bar */}
       <div className="p-4">
         <div className="relative">
+          <IoMdSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
           <input
             type="text"
-            placeholder="🔍 Search by username..."
+            placeholder="Search by username..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:outline-none"
+            className="w-full pl-12 pr-4 py-3 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:outline-none"
           />
           {searching && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -80,7 +83,7 @@ const Social = () => {
       <div className="px-4">
         {searchQuery.length < 2 ? (
           <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-6xl mb-4">👥</div>
+            <IoMdPeople className="text-6xl text-blue-600 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">Search for Users</h3>
             <p className="text-gray-600">
               Type at least 2 characters to find other gym members
@@ -88,7 +91,7 @@ const Social = () => {
           </div>
         ) : searchResults.length === 0 && !searching ? (
           <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-6xl mb-4">🔍</div>
+            <IoMdSearch className="text-6xl text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">No Users Found</h3>
             <p className="text-gray-600">No users match "{searchQuery}"</p>
           </div>
@@ -101,7 +104,7 @@ const Social = () => {
                 className="w-full bg-white rounded-lg shadow p-4 flex items-center justify-between hover:bg-gray-50 active:scale-98 transition">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">👤</span>
+                    <IoMdPerson className="text-2xl text-blue-600" />
                   </div>
                   <div className="text-left">
                     <h3 className="font-bold text-lg">{user.username}</h3>
@@ -122,7 +125,7 @@ const Social = () => {
       {searchQuery.length === 0 && (
         <div className="p-4 mt-4">
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 text-center border-2 border-purple-200">
-            <div className="text-4xl mb-3">🏆</div>
+            <GiTrophy className="text-4xl text-purple-600 mx-auto mb-3" />
             <h3 className="font-bold text-purple-900 mb-2">Coming Soon!</h3>
             <p className="text-sm text-purple-700">
               • Leaderboards

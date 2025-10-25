@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
+import { IoMdSearch } from "react-icons/io";
 
 const PlanBuilder = () => {
   const navigate = useNavigate();
@@ -408,13 +409,16 @@ const DayEditor = ({
         </button>
       ) : (
         <div className="border border-blue-500 rounded-lg p-3">
-          <input
-            type="text"
-            placeholder="🔍 Search exercises..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 mb-2 focus:outline-none focus:border-blue-500"
-          />
+          <div className="relative mb-2">
+            <IoMdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="text"
+              placeholder="Search exercises..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
+            />
+          </div>
           <div className="max-h-48 overflow-y-auto space-y-1">
             {filteredExercises.map((exercise) => (
               <button

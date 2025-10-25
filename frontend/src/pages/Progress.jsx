@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
+import { GiWeightLiftingUp, GiMuscleUp, GiTrophy } from "react-icons/gi";
+import {
+  IoBarChartOutline,
+  IoTimeOutline,
+  IoCalendarOutline,
+} from "react-icons/io5";
 
 const Progress = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview"); // overview, history, records
@@ -126,7 +132,7 @@ const Progress = () => {
       <div className="gradient-purple text-white p-6">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-20 h-20 glass-dark rounded-2xl flex items-center justify-center shadow-lg">
-            <span className="text-4xl">💪</span>
+            <GiMuscleUp className="text-4xl" />
           </div>
           <div>
             <h2 className="text-3xl font-bold">{user?.username}</h2>
@@ -194,16 +200,6 @@ const Progress = () => {
         {activeTab === "history" && <HistoryTab workouts={workoutHistory} />}
         {activeTab === "records" && <RecordsTab prs={prs} />}
       </div>
-
-      {/* Logout Button */}
-      <div className="fixed bottom-20 left-0 right-0 p-4 glass border-t border-gray-200/50">
-        <button
-          onClick={logout}
-          className="btn-danger w-full max-w-md mx-auto flex items-center justify-center gap-2">
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
-      </div>
     </div>
   );
 };
@@ -214,7 +210,7 @@ const OverviewTab = ({ stats, workoutHistory }) => {
     return (
       <div className="card p-8 text-center animate-fadeIn">
         <div className="inline-block p-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl mb-6 animate-float">
-          <div className="text-7xl">🏋️</div>
+          <GiWeightLiftingUp className="text-7xl text-blue-600" />
         </div>
         <h3 className="text-2xl font-bold mb-3">No Workouts Yet</h3>
         <p className="text-gray-600">
@@ -229,7 +225,8 @@ const OverviewTab = ({ stats, workoutHistory }) => {
       {/* Stats Cards */}
       <div className="card p-5">
         <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span>📊</span> Overall Stats
+          <IoBarChartOutline className="text-xl text-blue-600" />
+          <span>Overall Stats</span>
         </h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
@@ -264,7 +261,8 @@ const OverviewTab = ({ stats, workoutHistory }) => {
       {/* Recent Activity */}
       <div className="card p-5">
         <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span>⏱️</span> Recent Activity
+          <IoTimeOutline className="text-xl text-blue-600" />
+          <span>Recent Activity</span>
         </h3>
         <div className="space-y-3">
           {workoutHistory.slice(0, 5).map((workout, index) => (
@@ -337,10 +335,16 @@ const HistoryTab = ({ workouts }) => {
               </span>
             </div>
             <div className="flex gap-4 text-sm text-gray-600">
-              <span>📅 {new Date(workout.date).toLocaleDateString()}</span>
-              <span>⏱️ {Math.round(workout.duration / 60)} min</span>
-              <span>
-                💪 {workout.exercises.reduce((s, ex) => s + ex.sets.length, 0)}{" "}
+              <span className="flex items-center gap-1">
+                <IoCalendarOutline />{" "}
+                {new Date(workout.date).toLocaleDateString()}
+              </span>
+              <span className="flex items-center gap-1">
+                <IoTimeOutline /> {Math.round(workout.duration / 60)} min
+              </span>
+              <span className="flex items-center gap-1">
+                <GiMuscleUp />{" "}
+                {workout.exercises.reduce((s, ex) => s + ex.sets.length, 0)}{" "}
                 sets
               </span>
             </div>
@@ -378,7 +382,7 @@ const RecordsTab = ({ prs }) => {
   if (prs.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-6 text-center">
-        <div className="text-6xl mb-4">🏆</div>
+        <GiTrophy className="text-6xl text-yellow-500 mx-auto mb-4" />
         <h3 className="text-xl font-bold mb-2">No Records Yet</h3>
         <p className="text-gray-600">
           Complete workouts to track your personal records
@@ -391,7 +395,7 @@ const RecordsTab = ({ prs }) => {
     <div className="space-y-3">
       <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-lg shadow p-4 mb-4">
         <div className="flex items-center gap-3">
-          <span className="text-4xl">🏆</span>
+          <GiTrophy className="text-4xl" />
           <div>
             <h3 className="text-xl font-bold">Personal Records</h3>
             <p className="text-amber-100 text-sm">Your best lifts</p>

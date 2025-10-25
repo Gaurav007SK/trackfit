@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { GiWeightLiftingUp } from "react-icons/gi";
+import { IoKeyOutline } from "react-icons/io5";
 
 const Login = ({ onSwitchToRegister, onForgotPassword }) => {
   const { login } = useAuth();
@@ -37,7 +39,7 @@ const Login = ({ onSwitchToRegister, onForgotPassword }) => {
       <div className="card p-8 w-full max-w-md animate-fadeIn overflow-y-auto max-h-[95vh]">
         <div className="text-center mb-8">
           <div className="inline-block p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg mb-4 animate-float">
-            <h1 className="text-5xl">🏋️</h1>
+            <GiWeightLiftingUp className="text-5xl text-white" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             TrackFit
@@ -115,8 +117,9 @@ const Login = ({ onSwitchToRegister, onForgotPassword }) => {
         <div className="mt-8 text-center space-y-4">
           <button
             onClick={onForgotPassword}
-            className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline transition-colors">
-            🔑 Forgot Password?
+            className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline transition-colors flex items-center justify-center gap-2 mx-auto">
+            <IoKeyOutline className="text-lg" />
+            <span>Forgot Password?</span>
           </button>
 
           <div className="relative">

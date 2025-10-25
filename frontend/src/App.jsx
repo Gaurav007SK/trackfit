@@ -19,6 +19,7 @@ import ExerciseLibrary from "./pages/ExerciseLibrary";
 import Progress from "./pages/Progress";
 import Social from "./pages/Social";
 import UserProfile from "./pages/UserProfile";
+import { GiWeightLiftingUp } from "react-icons/gi";
 
 // Auth Screen Component
 const AuthScreen = () => {
@@ -48,7 +49,7 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <div className="text-4xl mb-4">🏋️</div>
+          <GiWeightLiftingUp className="text-4xl text-blue-600 mx-auto mb-4 animate-bounce" />
           <div className="text-gray-500">Loading...</div>
         </div>
       </div>

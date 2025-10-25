@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import { GiWeightLiftingUp, GiMuscleUp, GiTrophy } from "react-icons/gi";
+import { IoClose, IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
+import { MdNoteAlt } from "react-icons/md";
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -37,7 +40,7 @@ const UserProfile = () => {
     return (
       <div className="p-4">
         <div className="bg-white rounded-lg shadow p-6 text-center">
-          <div className="text-6xl mb-4">❌</div>
+          <IoClose className="text-6xl text-red-500 mx-auto mb-4" />
           <h3 className="text-xl font-bold mb-2">User Not Found</h3>
           <button
             onClick={() => navigate("/social")}
@@ -60,7 +63,7 @@ const UserProfile = () => {
         </button>
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-            <span className="text-4xl">💪</span>
+            <GiMuscleUp className="text-4xl" />
           </div>
           <div>
             <h2 className="text-3xl font-bold">{profile.user.username}</h2>
@@ -145,7 +148,7 @@ const StatsTab = ({ stats }) => {
     <div className="space-y-4">
       {stats.totalWorkouts === 0 ? (
         <div className="bg-white rounded-lg shadow p-6 text-center">
-          <div className="text-6xl mb-4">🏋️</div>
+          <GiWeightLiftingUp className="text-6xl text-blue-600 mx-auto mb-4" />
           <h3 className="text-xl font-bold mb-2">No Workouts Yet</h3>
           <p className="text-gray-600">
             This user hasn't completed any workouts
@@ -195,7 +198,7 @@ const RecordsTab = ({ prs }) => {
   if (prs.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-6 text-center">
-        <div className="text-6xl mb-4">🏆</div>
+        <GiTrophy className="text-6xl text-yellow-500 mx-auto mb-4" />
         <h3 className="text-xl font-bold mb-2">No Records Yet</h3>
         <p className="text-gray-600">No personal records to display</p>
       </div>
@@ -206,7 +209,7 @@ const RecordsTab = ({ prs }) => {
     <div className="space-y-3">
       <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-lg shadow p-4 mb-4">
         <div className="flex items-center gap-3">
-          <span className="text-4xl">🏆</span>
+          <GiTrophy className="text-4xl" />
           <div>
             <h3 className="text-xl font-bold">Top Personal Records</h3>
             <p className="text-amber-100 text-sm">Best lifts</p>
@@ -253,7 +256,7 @@ const RecentTab = ({ workouts }) => {
   if (workouts.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-6 text-center">
-        <div className="text-6xl mb-4">📝</div>
+        <MdNoteAlt className="text-6xl text-gray-400 mx-auto mb-4" />
         <h3 className="text-xl font-bold mb-2">No Recent Workouts</h3>
         <p className="text-gray-600">No recent activity to display</p>
       </div>
@@ -268,9 +271,16 @@ const RecentTab = ({ workouts }) => {
             <h3 className="font-bold text-lg">{workout.dayName}</h3>
           </div>
           <div className="flex gap-4 text-sm text-gray-600">
-            <span>📅 {new Date(workout.date).toLocaleDateString()}</span>
-            <span>⏱️ {Math.round(workout.duration / 60)} min</span>
-            <span>💪 {workout.totalSets} sets</span>
+            <span className="flex items-center gap-1">
+              <IoCalendarOutline />{" "}
+              {new Date(workout.date).toLocaleDateString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <IoTimeOutline /> {Math.round(workout.duration / 60)} min
+            </span>
+            <span className="flex items-center gap-1">
+              <GiMuscleUp /> {workout.totalSets} sets
+            </span>
           </div>
         </div>
       ))}
