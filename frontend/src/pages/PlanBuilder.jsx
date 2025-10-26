@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
 import { IoMdSearch } from "react-icons/io";
 
 const PlanBuilder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const editPlan = location.state?.editPlan; // Get plan data if editing
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -18,6 +20,25 @@ const PlanBuilder = () => {
 
   useEffect(() => {
     fetchExercises();
+    // If editing, load the plan data
+    if (editPlan) {
+      setPlanData({
+        name: editPlan.name,
+        daysPerWeek: editPlan.daysPerWeek,
+        schedule: editPlan.schedule.map((day) => ({
+          dayName: day.dayName,
+          dayNumber: day.dayNumber || day._id,
+          weekDay: day.weekDay || "",
+          exercises: day.exercises.map((ex) => ({
+            exerciseId: ex.exerciseId || ex._id,
+            exerciseName: ex.exerciseName,
+            targetSets: ex.sets || ex.targetSets || 3,
+            targetReps: ex.reps || ex.targetReps || 10,
+          })),
+        })),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchExercises = async () => {
@@ -142,16 +163,23 @@ const PlanBuilder = () => {
     }
 
     try {
-      await api.post("/plans", {
-        ...planData,
-        isActive: true, // Make this the active plan
-      });
-      setToast({ message: "Plan created successfully!", type: "success" });
+      if (editPlan) {
+        // Update existing plan
+        await api.put(`/plans/${editPlan._id}`, planData);
+        setToast({ message: "Plan updated successfully!", type: "success" });
+      } else {
+        // Create new plan
+        await api.post("/plans", {
+          ...planData,
+          isActive: true, // Make this the active plan
+        });
+        setToast({ message: "Plan created successfully!", type: "success" });
+      }
       setTimeout(() => navigate("/plans"), 1000);
     } catch (error) {
-      console.error("Error creating plan:", error);
+      console.error("Error saving plan:", error);
       setToast({
-        message: error.response?.data?.message || "Failed to create plan",
+        message: error.response?.data?.message || "Failed to save plan",
         type: "error",
       });
     }
@@ -177,7 +205,9 @@ const PlanBuilder = () => {
       )}
 
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Create Workout Plan</h1>
+        <h1 className="text-2xl font-bold">
+          {editPlan ? "Edit Plan" : "Create Plan"}
+        </h1>
         <button
           onClick={() => navigate("/plans")}
           className="text-gray-600 hover:text-gray-800">
@@ -246,7 +276,7 @@ const PlanBuilder = () => {
           <button
             onClick={handleSubmit}
             className="w-full bg-green-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-600 active:scale-95 transform transition shadow-lg">
-            Create Plan ✓
+            {editPlan ? "Update Plan ✓" : "Create Plan ✓"}
           </button>
         </div>
       </div>
