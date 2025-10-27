@@ -3,7 +3,13 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { IoTimeOutline } from "react-icons/io5";
+import {
+  IoTimeOutline,
+  IoAddCircleOutline,
+  IoClose,
+  IoSearchOutline,
+} from "react-icons/io5";
+import { MdFitnessCenter } from "react-icons/md";
 
 const ActiveWorkout = () => {
   const navigate = useNavigate();
@@ -14,6 +20,9 @@ const ActiveWorkout = () => {
   const [toast, setToast] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
+  const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
+  const [availableExercises, setAvailableExercises] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchWorkout = async () => {
     try {
@@ -29,6 +38,42 @@ const ActiveWorkout = () => {
       navigate("/");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchExercises = async () => {
+    try {
+      const { data } = await api.get("/exercises");
+      setAvailableExercises(data);
+    } catch (error) {
+      console.error("Error fetching exercises:", error);
+      setToast({ message: "Failed to load exercises", type: "error" });
+    }
+  };
+
+  const addExtraExercise = async (exercise) => {
+    try {
+      const { data } = await api.post(`/workouts/${workout._id}/exercise`, {
+        exerciseId: exercise._id,
+        exerciseName: exercise.name,
+        targetSets: 3,
+        targetReps: 10,
+        wasPlanned: false,
+      });
+      setWorkout(data);
+      setShowAddExerciseModal(false);
+      setSearchQuery("");
+      setActiveExerciseIndex(data.exercises.length - 1); // Switch to the new exercise
+      setToast({
+        message: `${exercise.name} added to workout!`,
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error adding exercise:", error);
+      setToast({
+        message: error.response?.data?.message || "Failed to add exercise",
+        type: "error",
+      });
     }
   };
 
@@ -199,6 +244,80 @@ const ActiveWorkout = () => {
         />
       )}
 
+      {/* Add Exercise Modal */}
+      {showAddExerciseModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col animate-slideUp">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <MdFitnessCenter className="text-blue-600" />
+                Add Extra Exercise
+              </h3>
+              <button
+                onClick={() => {
+                  setShowAddExerciseModal(false);
+                  setSearchQuery("");
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition">
+                <IoClose className="text-2xl text-gray-600" />
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="relative">
+                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+                <input
+                  type="text"
+                  placeholder="Search exercises..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Exercise List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-2">
+                {availableExercises
+                  .filter((ex) =>
+                    ex.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((exercise) => (
+                    <button
+                      key={exercise._id}
+                      onClick={() => addExtraExercise(exercise)}
+                      className="w-full card-interactive p-4 bg-gradient-to-r from-gray-50 to-white hover:from-blue-50 hover:to-purple-50 text-left">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-800">
+                            {exercise.name}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            {exercise.category}
+                          </p>
+                        </div>
+                        <IoAddCircleOutline className="text-2xl text-blue-600" />
+                      </div>
+                    </button>
+                  ))}
+                {availableExercises.filter((ex) =>
+                  ex.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <MdFitnessCenter className="text-5xl mx-auto mb-2 text-gray-300" />
+                    <p>No exercises found</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sticky top-0 z-10 shadow-lg">
         <div className="flex items-center justify-between mb-2">
@@ -233,6 +352,16 @@ const ActiveWorkout = () => {
               )}
             </button>
           ))}
+          {/* Add Exercise Button */}
+          <button
+            onClick={() => {
+              setShowAddExerciseModal(true);
+              fetchExercises();
+            }}
+            className="px-3 py-1 rounded-full text-sm whitespace-nowrap bg-white/20 text-white border border-white/40 hover:bg-white/30 transition flex items-center gap-1">
+            <IoAddCircleOutline className="text-lg" />
+            Add Exercise
+          </button>
         </div>
       </div>
 

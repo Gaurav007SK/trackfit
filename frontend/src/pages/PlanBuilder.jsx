@@ -270,15 +270,13 @@ const PlanBuilder = () => {
         />
       ))}
 
-      {/* Save Button */}
-      <div className="fixed bottom-20 left-0 right-0 p-4 bg-white border-t">
-        <div className="max-w-md mx-auto">
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-green-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-600 active:scale-95 transform transition shadow-lg">
-            {editPlan ? "Update Plan ✓" : "Create Plan ✓"}
-          </button>
-        </div>
+      {/* Save Button - Not Fixed, sits at bottom of content */}
+      <div className="mt-6 pb-24">
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-green-500 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-600 active:scale-95 transform transition shadow-lg">
+          {editPlan ? "Update Plan ✓" : "Create Plan ✓"}
+        </button>
       </div>
     </div>
   );

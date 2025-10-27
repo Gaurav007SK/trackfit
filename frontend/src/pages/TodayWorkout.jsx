@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
@@ -8,6 +8,7 @@ import {
   IoFlameSharp,
   IoListOutline,
   IoTimeOutline,
+  IoCloseCircle,
 } from "react-icons/io5";
 import { MdCelebration } from "react-icons/md";
 
@@ -38,9 +39,10 @@ const TodayWorkout = () => {
 
   useEffect(() => {
     fetchTodaysWorkout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchTodaysWorkout = async () => {
+  const fetchTodaysWorkout = useCallback(async () => {
     try {
       const { data } = await api.get("/workouts/today");
       console.log("Today's workout data:", data);
@@ -77,7 +79,7 @@ const TodayWorkout = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   const startWorkout = async () => {
     try {
@@ -122,6 +124,14 @@ const TodayWorkout = () => {
     );
     const durationMinutes = Math.floor(completedWorkout.duration / 60);
 
+    // Separate completed and skipped exercises
+    const completedExercises = completedWorkout.exercises.filter(
+      (ex) => ex.sets && ex.sets.length > 0
+    );
+    const skippedExercises = completedWorkout.exercises.filter(
+      (ex) => !ex.sets || ex.sets.length === 0
+    );
+
     return (
       <div className="p-4 animate-fadeIn">
         <div className="mb-6">
@@ -154,6 +164,20 @@ const TodayWorkout = () => {
             <p className="text-green-50 text-lg font-medium">
               {completedWorkout.dayName}
             </p>
+
+            {/* Completion Stats */}
+            <div className="mt-4 flex items-center justify-center gap-4 text-sm">
+              <div className="bg-white/20 px-3 py-1.5 rounded-full">
+                <span className="font-bold">{completedExercises.length}</span>{" "}
+                completed
+              </div>
+              {skippedExercises.length > 0 && (
+                <div className="bg-white/20 px-3 py-1.5 rounded-full">
+                  <span className="font-bold">{skippedExercises.length}</span>{" "}
+                  skipped
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Stats Grid */}
@@ -182,38 +206,88 @@ const TodayWorkout = () => {
           </div>
         </div>
 
-        {/* Exercises Summary */}
-        <div className="card mb-6">
-          <div className="p-4 border-b border-gray-100">
-            <h3 className="font-bold text-gray-800 flex items-center gap-2">
-              <GiMuscleUp className="text-xl text-blue-600" />
-              <span>Exercises Completed</span>
-            </h3>
-          </div>
-          {completedWorkout.exercises.map((exercise, index) => (
-            <div
-              key={index}
-              className="p-4 border-b last:border-b-0 border-gray-50">
-              <h4 className="font-semibold text-gray-800 mb-3">
-                {exercise.exerciseName}
-              </h4>
-              <div className="space-y-2">
-                {exercise.sets.map((set, setIdx) => (
-                  <div
-                    key={setIdx}
-                    className="bg-gray-50 rounded-lg px-3 py-2 flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">
-                      Set {set.setNumber}
-                    </span>
-                    <span className="font-bold text-blue-600">
-                      {set.weight} kg × {set.reps} reps
-                    </span>
-                  </div>
-                ))}
-              </div>
+        {/* Completed Exercises */}
+        {completedExercises.length > 0 && (
+          <div className="card mb-6">
+            <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <IoCheckmarkCircle className="text-xl text-green-600" />
+                <span>Completed Exercises</span>
+                <span className="ml-auto bg-green-600 text-white text-xs px-2.5 py-1 rounded-full">
+                  {completedExercises.length}
+                </span>
+              </h3>
             </div>
-          ))}
-        </div>
+            {completedExercises.map((exercise, index) => (
+              <div
+                key={index}
+                className="p-4 border-b last:border-b-0 border-gray-50 bg-gradient-to-r from-white to-green-50/30">
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <span className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      ✓
+                    </span>
+                    {exercise.exerciseName}
+                  </h4>
+                  {!exercise.wasPlanned && (
+                    <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                      Extra
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {exercise.sets.map((set, setIdx) => (
+                    <div
+                      key={setIdx}
+                      className="bg-gray-50 rounded-lg px-3 py-2 flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">
+                        Set {set.setNumber}
+                      </span>
+                      <span className="font-bold text-green-600">
+                        {set.weight} kg × {set.reps} reps
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Skipped Exercises */}
+        {skippedExercises.length > 0 && (
+          <div className="card mb-6">
+            <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <IoCloseCircle className="text-xl text-red-600" />
+                <span>Skipped Exercises</span>
+                <span className="ml-auto bg-red-600 text-white text-xs px-2.5 py-1 rounded-full">
+                  {skippedExercises.length}
+                </span>
+              </h3>
+            </div>
+            {skippedExercises.map((exercise, index) => (
+              <div
+                key={index}
+                className="p-4 border-b last:border-b-0 border-gray-50 bg-gradient-to-r from-white to-red-50/20">
+                <div className="flex items-center gap-3 opacity-60">
+                  <span className="w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    ✕
+                  </span>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-700 line-through">
+                      {exercise.exerciseName}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Planned: {exercise.targetSets} sets ×{" "}
+                      {exercise.targetReps} reps
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Rest Message */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
