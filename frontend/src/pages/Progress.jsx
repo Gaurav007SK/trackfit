@@ -7,6 +7,7 @@ import {
   IoTimeOutline,
   IoCalendarOutline,
 } from "react-icons/io5";
+import WorkoutCalendar from "../components/WorkoutCalendar";
 
 const Progress = () => {
   const { user } = useAuth();
@@ -222,6 +223,9 @@ const OverviewTab = ({ stats, workoutHistory }) => {
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Workout Calendar */}
+      <WorkoutCalendar />
+
       {/* Stats Cards */}
       <div className="card p-5">
         <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">

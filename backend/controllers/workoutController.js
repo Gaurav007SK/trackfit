@@ -290,12 +290,28 @@ export const completeWorkout = async (req, res) => {
 // @route   GET /api/workouts/history
 export const getWorkoutHistory = async (req, res) => {
   try {
-    const { limit = 20, skip = 0 } = req.query;
+    const { limit = 20, skip = 0, startDate, endDate } = req.query;
 
-    const workouts = await Workout.find({
+    // Build query
+    const query = {
       userId: req.user._id,
-      status: "completed",
-    })
+    };
+
+    // Add date range if provided
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
+    } else {
+      // Default: only completed workouts if no date range specified
+      query.status = "completed";
+    }
+
+    const workouts = await Workout.find(query)
       .sort({ date: -1 })
       .limit(parseInt(limit))
       .skip(parseInt(skip))
