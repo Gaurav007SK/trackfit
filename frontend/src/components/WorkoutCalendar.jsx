@@ -28,15 +28,27 @@ const WorkoutCalendar = () => {
         currentDate.getMonth(),
         1
       );
+      startOfMonth.setHours(0, 0, 0, 0);
+      
       const endOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
         0
       );
+      endOfMonth.setHours(23, 59, 59, 999);
+
+      console.log("Fetching workouts from:", startOfMonth.toISOString(), "to", endOfMonth.toISOString());
 
       const workoutsRes = await api.get(
         `/workouts/history?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
       );
+      console.log("Fetched workouts for calendar:", workoutsRes.data);
+      console.log("Workouts dates and statuses:", workoutsRes.data.map(w => ({
+        date: new Date(w.date).toISOString(),
+        localDate: new Date(w.date).toLocaleDateString(),
+        status: w.status,
+        dayName: w.dayName
+      })));
       setWorkoutData(workoutsRes.data);
     } catch (error) {
       console.error("Error fetching calendar data:", error);
