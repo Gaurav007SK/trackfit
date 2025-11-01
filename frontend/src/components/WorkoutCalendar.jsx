@@ -70,12 +70,27 @@ const WorkoutCalendar = () => {
     today.setHours(0, 0, 0, 0);
     date.setHours(0, 0, 0, 0);
 
-    // Check if there's a workout on this day
+    // Check if there's a workout on this day with improved date matching
     const workout = workoutData.find((w) => {
       const workoutDate = new Date(w.date);
-      workoutDate.setHours(0, 0, 0, 0);
-      return workoutDate.getTime() === date.getTime();
+      // Compare by date components to avoid timezone issues
+      return (
+        workoutDate.getFullYear() === date.getFullYear() &&
+        workoutDate.getMonth() === date.getMonth() &&
+        workoutDate.getDate() === date.getDate()
+      );
     });
+
+    // Debug log for specific date
+    if (day === 31 && currentDate.getMonth() === 9) {
+      // October 31
+      console.log("Oct 31 - Checking workout:", {
+        workout: workout,
+        status: workout?.status,
+        date: date,
+        workoutDate: workout?.date,
+      });
+    }
 
     // Check if this day is a planned workout day according to plan schedule
     const isWorkoutDay = activePlan && isPlannedWorkoutDay(date);
