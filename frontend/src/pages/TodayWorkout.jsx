@@ -412,64 +412,132 @@ const TodayWorkout = () => {
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-white/60 to-slate-50 p-6">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-tr from-purple-200 to-blue-200 rounded-full blur-3xl opacity-60"></div>
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
-                <GiMuscleUp className="text-5xl text-white" />
+        {/* Rest Day Card */}
+        <div className="card p-0 mb-6 overflow-hidden animate-scale-in">
+          {/* Header Section with Gradient */}
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-8 text-white text-center relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+            {/* Icon */}
+            <div className="relative inline-flex items-center justify-center mb-4">
+              <div className="absolute w-24 h-24 bg-white/20 rounded-full animate-ping"></div>
+              <div className="relative w-24 h-24 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl border-4 border-white/40">
+                <GiMuscleUp className="text-6xl text-white" />
               </div>
             </div>
 
-            <div className="flex-1">
-              <h2 className="text-2xl font-extrabold text-slate-800">
-                Rest Day
-              </h2>
-              <p className="text-slate-600 mt-2 max-w-xl">
-                You have an active plan{" "}
-                <span className="font-semibold">
-                  {todayData.plan?.name || "Your Plan"}
-                </span>
-                , but nothing is scheduled for today. Take a rest and recover —
-                your next session is below.
-              </p>
+            {/* Text */}
+            <h2 className="text-3xl font-bold mb-2">Rest Day</h2>
+            <p className="text-purple-100 text-base max-w-md mx-auto">
+              Recovery is just as important as training. Your muscles grow
+              during rest.
+            </p>
+          </div>
 
-              {next ? (
-                <div className="mt-4 flex items-center gap-4 flex-wrap">
-                  <div className="px-4 py-2 bg-white border rounded-lg shadow-sm">
-                    <div className="text-xs text-slate-500">Next session</div>
-                    <div className="font-semibold text-slate-800">
-                      {next.scheduleItem.dayName} • {next.scheduleItem.weekDay}
+          {/* Content Section */}
+          <div className="p-6">
+            {/* Plan Info */}
+            <div className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <IoListOutline className="text-xl text-white" />
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wider">
+                    Active Plan
+                  </div>
+                  <div className="font-bold text-gray-800">
+                    {todayData.plan?.name || "Your Plan"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Workout Section */}
+            {next ? (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <IoTimeOutline className="text-lg text-blue-600" />
+                  Next Scheduled Session
+                </h3>
+
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border-2 border-blue-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <div className="text-lg font-bold text-gray-800">
+                        {next.scheduleItem.dayName}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {next.scheduleItem.weekDay}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-500">
-                      {next.nextDate.toLocaleDateString()}
+                    <div className="text-right">
+                      <div className="text-xs text-gray-500">Date</div>
+                      <div className="text-sm font-semibold text-gray-800">
+                        {next.nextDate.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
                     </div>
                   </div>
-                  <div className="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">
+
+                  <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold">
+                    <IoFlameSharp />
                     In {next.daysUntil} day{next.daysUntil > 1 ? "s" : ""}
                   </div>
                 </div>
-              ) : (
-                <div className="mt-4 text-sm text-slate-500">
-                  No upcoming sessions found in this plan.
-                </div>
-              )}
-
-              <div className="mt-5 flex gap-3">
-                <button
-                  onClick={() => navigate("/plans")}
-                  className="px-4 py-2 rounded-lg bg-white border shadow-sm text-sm font-medium">
-                  View Plan
-                </button>
-                {next && (
-                  <button
-                    onClick={() => startWorkoutWithDay(next.scheduleItem)}
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold">
-                    Start Next Workout
-                  </button>
-                )}
               </div>
+            ) : (
+              <div className="mb-6 text-center py-4">
+                <div className="text-sm text-gray-500">
+                  No upcoming sessions scheduled
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => navigate("/plans")}
+                className="flex-1 btn-ghost flex items-center justify-center gap-2">
+                <IoListOutline className="text-lg" />
+                <span>View Plan</span>
+              </button>
+              {next && (
+                <button
+                  onClick={() => startWorkoutWithDay(next.scheduleItem)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-bold shadow-lg hover:shadow-xl active:scale-95 transform transition-all flex items-center justify-center gap-2">
+                  <IoFlameSharp className="text-xl" />
+                  <span>Start Next Workout</span>
+                </button>
+              )}
             </div>
+          </div>
+        </div>
+
+        {/* Rest Tips */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="card p-4 bg-gradient-to-br from-blue-50 to-white">
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mb-3">
+              <GiMuscleUp className="text-xl text-white" />
+            </div>
+            <h4 className="font-semibold text-gray-800 mb-1">Stay Active</h4>
+            <p className="text-sm text-gray-600">
+              Light stretching or a walk can help recovery.
+            </p>
+          </div>
+
+          <div className="card p-4 bg-gradient-to-br from-purple-50 to-white">
+            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center mb-3">
+              <IoTimeOutline className="text-xl text-white" />
+            </div>
+            <h4 className="font-semibold text-gray-800 mb-1">Get Sleep</h4>
+            <p className="text-sm text-gray-600">
+              Quality sleep is essential for muscle recovery.
+            </p>
           </div>
         </div>
       </div>
