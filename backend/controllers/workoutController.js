@@ -1,6 +1,57 @@
 import Workout from "../models/Workout.js";
 import Plan from "../models/Plan.js";
 
+// Helper function to add PR and last workout data to exercises
+const addExerciseHistory = async (workout, userId) => {
+  const exercisesWithHistory = await Promise.all(
+    workout.exercises.map(async (exercise) => {
+      // Find PR (Personal Record) - highest weight × reps for this exercise
+      const workoutsWithExercise = await Workout.find({
+        userId: userId,
+        status: "completed",
+        "exercises.exerciseName": exercise.exerciseName,
+      }).sort({ date: -1 });
+
+      let pr = null;
+      let lastWorkout = null;
+
+      for (const w of workoutsWithExercise) {
+        const ex = w.exercises.find(
+          (e) => e.exerciseName === exercise.exerciseName
+        );
+        if (ex && ex.sets && ex.sets.length > 0) {
+          // Calculate PR (best single set by weight × reps)
+          ex.sets.forEach((set) => {
+            const volume = set.weight * set.reps;
+            if (!pr || volume > pr.weight * pr.reps) {
+              pr = { weight: set.weight, reps: set.reps, date: w.date };
+            }
+          });
+
+          // Last workout (most recent completed workout with this exercise)
+          if (!lastWorkout && w._id.toString() !== workout._id.toString()) {
+            lastWorkout = {
+              date: w.date,
+              sets: ex.sets,
+            };
+          }
+        }
+      }
+
+      return {
+        ...exercise.toObject(),
+        pr,
+        lastWorkout,
+      };
+    })
+  );
+
+  return {
+    ...workout.toObject(),
+    exercises: exercisesWithHistory,
+  };
+};
+
 // @desc    Get today's suggested workout
 // @route   GET /api/workouts/today
 export const getTodaysWorkout = async (req, res) => {
@@ -144,7 +195,10 @@ export const addExerciseToWorkout = async (req, res) => {
     });
 
     await workout.save();
-    res.json(workout);
+
+    // Add PR and last workout data before sending response
+    const workoutWithHistory = await addExerciseHistory(workout, req.user._id);
+    res.json(workoutWithHistory);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -178,7 +232,10 @@ export const logSet = async (req, res) => {
     });
 
     await workout.save();
-    res.json(workout);
+
+    // Add PR and last workout data before sending response
+    const workoutWithHistory = await addExerciseHistory(workout, req.user._id);
+    res.json(workoutWithHistory);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -212,7 +269,10 @@ export const updateSet = async (req, res) => {
     workout.exercises[exerciseIndex].sets[setIndex].reps = parseInt(reps);
 
     await workout.save();
-    res.json(workout);
+
+    // Add PR and last workout data before sending response
+    const workoutWithHistory = await addExerciseHistory(workout, req.user._id);
+    res.json(workoutWithHistory);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -246,7 +306,10 @@ export const deleteSet = async (req, res) => {
     });
 
     await workout.save();
-    res.json(workout);
+
+    // Add PR and last workout data before sending response
+    const workoutWithHistory = await addExerciseHistory(workout, req.user._id);
+    res.json(workoutWithHistory);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -328,7 +391,9 @@ export const getWorkoutById = async (req, res) => {
       return res.status(404).json({ message: "Workout not found" });
     }
 
-    res.json(workout);
+    // Add PR and last workout data
+    const workoutWithHistory = await addExerciseHistory(workout, req.user._id);
+    res.json(workoutWithHistory);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
