@@ -48,36 +48,29 @@ export const getTodaysWorkout = async (req, res) => {
     const todayName = daysOfWeek[currentDayOfWeek];
 
     // Try to find a workout scheduled for today's weekday
-    let suggestedDay = activePlan.schedule.find((d) => d.weekDay === todayName);
+    const suggestedDay = activePlan.schedule.find(
+      (d) => d.weekDay === todayName
+    );
 
-    // If no workout scheduled for today, get the next workout in sequence
-    if (!suggestedDay) {
-      const lastWorkout = await Workout.findOne({
-        userId: req.user._id,
-        planId: activePlan._id,
-        status: "completed",
-      }).sort({ date: -1 });
-
-      let nextDayNumber = 1;
-      if (lastWorkout && lastWorkout.plannedDayId) {
-        const lastDay = activePlan.schedule.find(
-          (d) => d._id.toString() === lastWorkout.plannedDayId.toString()
-        );
-        if (lastDay) {
-          nextDayNumber = (lastDay.dayNumber % activePlan.daysPerWeek) + 1;
-        }
-      }
-
-      suggestedDay = activePlan.schedule.find(
-        (d) => d.dayNumber === nextDayNumber
-      );
+    // If there is a workout scheduled for today, suggest it
+    if (suggestedDay) {
+      return res.json({
+        suggested: true,
+        plan: activePlan,
+        day: suggestedDay,
+        todayIs: todayName,
+      });
     }
 
-    res.json({
-      suggested: true,
+    // No workout scheduled for today (rest day). Don't auto-suggest a workout.
+    // Return the active plan and indicate that today is a rest day so the frontend
+    // can show the proper Rest Day UI instead of prompting to start a workout.
+    return res.json({
+      suggested: false,
       plan: activePlan,
-      day: suggestedDay,
+      day: null,
       todayIs: todayName,
+      message: "Rest Day",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

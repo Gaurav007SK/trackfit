@@ -48,7 +48,13 @@ const TodayWorkout = () => {
       console.log("Today's workout data:", data);
 
       if (data.suggested) {
-        // Suggested workout from plan
+        // Suggested workout from plan (today has a planned workout)
+        setTodayData(data);
+        setWorkout(null);
+        setCompletedWorkout(null);
+      } else if (data.suggested === false && data.plan) {
+        // Explicit rest day: active plan exists but nothing scheduled today
+        // Keep the plan info so UI can show Rest Day with plan context
         setTodayData(data);
         setWorkout(null);
         setCompletedWorkout(null);
@@ -82,12 +88,24 @@ const TodayWorkout = () => {
   }, [navigate]);
 
   const startWorkout = async () => {
+    // default start uses today's suggested day from API
+    return startWorkoutWithDay();
+  };
+
+  // startWorkoutWithDay accepts an optional plannedDay object (from plan.schedule)
+  const startWorkoutWithDay = async (plannedDay) => {
     try {
+      const day = plannedDay || todayData?.day;
+      if (!day) {
+        setToast({ message: "No workout day selected", type: "error" });
+        return;
+      }
+
       const { data } = await api.post("/workouts/start", {
         planId: todayData.plan._id,
-        plannedDayId: todayData.day._id,
-        dayName: todayData.day.dayName,
-        exercises: todayData.day.exercises,
+        plannedDayId: day._id,
+        dayName: day.dayName,
+        exercises: day.exercises,
       });
       // Navigate to active workout page
       navigate(`/workout?id=${data._id}`);
@@ -343,8 +361,122 @@ const TodayWorkout = () => {
       </div>
     );
   }
+  // If we have todayData but suggested === false, it's an explicit rest day
+  if (todayData && todayData.suggested === false) {
+    // compute next scheduled day from plan schedule
+    const getNextScheduled = (schedule, fromDate = new Date()) => {
+      if (!schedule || schedule.length === 0) return null;
 
-  if (todayData && todayData.day) {
+      // Map weekday names to numbers
+      const dayIndex = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6,
+      };
+
+      const todayIdx = fromDate.getDay();
+      let best = null;
+      let minDays = 8;
+
+      for (const s of schedule) {
+        const idx = dayIndex[s.weekDay];
+        if (idx === undefined) continue;
+        let delta = (idx - todayIdx + 7) % 7;
+        if (delta === 0) delta = 7; // next occurrence (tomorrow or next week)
+        if (delta < minDays) {
+          minDays = delta;
+          const nextDate = new Date(fromDate);
+          nextDate.setDate(fromDate.getDate() + delta);
+          nextDate.setHours(0, 0, 0, 0);
+          best = { scheduleItem: s, nextDate, daysUntil: delta };
+        }
+      }
+
+      return best;
+    };
+
+    const next = getNextScheduled(todayData.plan?.schedule || [], new Date());
+
+    return (
+      <div className="p-4 animate-fadeIn">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Today's Workout
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {currentDay}, {currentDate}
+          </p>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-white/60 to-slate-50 p-6">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-tr from-purple-200 to-blue-200 rounded-full blur-3xl opacity-60"></div>
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
+              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
+                <GiMuscleUp className="text-5xl text-white" />
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <h2 className="text-2xl font-extrabold text-slate-800">
+                Rest Day
+              </h2>
+              <p className="text-slate-600 mt-2 max-w-xl">
+                You have an active plan{" "}
+                <span className="font-semibold">
+                  {todayData.plan?.name || "Your Plan"}
+                </span>
+                , but nothing is scheduled for today. Take a rest and recover —
+                your next session is below.
+              </p>
+
+              {next ? (
+                <div className="mt-4 flex items-center gap-4 flex-wrap">
+                  <div className="px-4 py-2 bg-white border rounded-lg shadow-sm">
+                    <div className="text-xs text-slate-500">Next session</div>
+                    <div className="font-semibold text-slate-800">
+                      {next.scheduleItem.dayName} • {next.scheduleItem.weekDay}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {next.nextDate.toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">
+                    In {next.daysUntil} day{next.daysUntil > 1 ? "s" : ""}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 text-sm text-slate-500">
+                  No upcoming sessions found in this plan.
+                </div>
+              )}
+
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => navigate("/plans")}
+                  className="px-4 py-2 rounded-lg bg-white border shadow-sm text-sm font-medium">
+                  View Plan
+                </button>
+                {next && (
+                  <button
+                    onClick={() => startWorkoutWithDay(next.scheduleItem)}
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold">
+                    Start Next Workout
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (todayData && todayData.suggested && todayData.day) {
     const isScheduledToday = todayData.day.weekDay === currentDay;
 
     return (
