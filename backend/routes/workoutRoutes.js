@@ -9,6 +9,8 @@ import {
   completeWorkout,
   getWorkoutHistory,
   getWorkoutById,
+  getExerciseProgress,
+  getExerciseList,
 } from "../controllers/workoutController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -17,6 +19,8 @@ const router = express.Router();
 router.get("/today", protect, getTodaysWorkout);
 router.post("/start", protect, startWorkout);
 router.get("/history", protect, getWorkoutHistory);
+router.get("/progress/exercises/list", protect, getExerciseList);
+router.get("/progress/:exerciseName", protect, getExerciseProgress);
 
 router.route("/:id").get(protect, getWorkoutById);
 

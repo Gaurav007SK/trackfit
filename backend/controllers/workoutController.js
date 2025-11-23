@@ -398,3 +398,94 @@ export const getWorkoutById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get progress data for an exercise
+// @route   GET /api/workouts/progress/:exerciseName
+export const getExerciseProgress = async (req, res) => {
+  try {
+    const { exerciseName } = req.params;
+    const userId = req.user._id;
+
+    // Find all completed workouts with this exercise
+    const workouts = await Workout.find({
+      userId: userId,
+      status: "completed",
+      "exercises.exerciseName": exerciseName,
+    }).sort({ date: 1 }); // Sort by date ascending
+
+    if (workouts.length === 0) {
+      return res.json({ exerciseName, data: [] });
+    }
+
+    // Extract progress data
+    const progressData = workouts
+      .map((workout) => {
+        const exercise = workout.exercises.find(
+          (e) => e.exerciseName === exerciseName
+        );
+
+        if (exercise && exercise.sets && exercise.sets.length > 0) {
+          // Calculate metrics for this workout session
+          const maxWeight = Math.max(
+            ...exercise.sets.map((s) => s.weight || 0)
+          );
+          const totalReps = exercise.sets.reduce(
+            (sum, s) => sum + (s.reps || 0),
+            0
+          );
+          const totalVolume = exercise.sets.reduce(
+            (sum, s) => sum + (s.weight || 0) * (s.reps || 0),
+            0
+          );
+          const avgWeight =
+            exercise.sets.reduce((sum, s) => sum + (s.weight || 0), 0) /
+            exercise.sets.length;
+          const setCount = exercise.sets.length;
+
+          return {
+            date: workout.date,
+            maxWeight,
+            totalReps,
+            totalVolume,
+            avgWeight: Math.round(avgWeight * 10) / 10,
+            setCount,
+            sets: exercise.sets,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    res.json({ exerciseName, data: progressData });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all unique exercises from user's workout history
+// @route   GET /api/workouts/progress/exercises/list
+export const getExerciseList = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const workouts = await Workout.find({
+      userId: userId,
+      status: "completed",
+    });
+
+    // Extract unique exercise names
+    const exerciseSet = new Set();
+    workouts.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
+        if (exercise.exerciseName) {
+          exerciseSet.add(exercise.exerciseName);
+        }
+      });
+    });
+
+    const exercises = Array.from(exerciseSet).sort();
+    res.json({ exercises });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
