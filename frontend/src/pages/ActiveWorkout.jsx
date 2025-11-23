@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
+import SetRow from "../components/workout/SetRow";
+import WorkoutTimer from "../components/workout/WorkoutTimer";
+import AddExerciseModal from "../components/workout/AddExerciseModal";
+import ExerciseCard from "../components/workout/ExerciseCard";
 import {
   IoTimeOutline,
   IoAddCircleOutline,
-  IoClose,
-  IoSearchOutline,
   IoCheckmarkCircle,
 } from "react-icons/io5";
 import { MdFitnessCenter } from "react-icons/md";
@@ -20,10 +22,9 @@ const ActiveWorkout = () => {
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
   const [toast, setToast] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0); // in seconds
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
   const [availableExercises, setAvailableExercises] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchWorkout = async () => {
     try {
@@ -63,8 +64,7 @@ const ActiveWorkout = () => {
       });
       setWorkout(data);
       setShowAddExerciseModal(false);
-      setSearchQuery("");
-      setActiveExerciseIndex(data.exercises.length - 1); // Switch to the new exercise
+      setActiveExerciseIndex(data.exercises.length - 1);
       setToast({
         message: `${exercise.name} added to workout!`,
         type: "success",
@@ -83,11 +83,10 @@ const ActiveWorkout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Timer effect - updates every second
+  // Timer effect
   useEffect(() => {
     if (!workout?.startTime) return;
 
-    // Calculate initial elapsed time
     const startTime = new Date(workout.startTime).getTime();
     const updateElapsedTime = () => {
       const now = Date.now();
@@ -95,10 +94,7 @@ const ActiveWorkout = () => {
       setElapsedTime(elapsed);
     };
 
-    // Update immediately
     updateElapsedTime();
-
-    // Update every second
     const timer = setInterval(updateElapsedTime, 1000);
 
     return () => clearInterval(timer);
@@ -163,27 +159,15 @@ const ActiveWorkout = () => {
         "Complete this workout? You can't make changes after completion.",
       onConfirm: async () => {
         setConfirmDialog(null);
-        console.log("User confirmed, starting completion...");
         setCompleting(true);
 
         try {
-          console.log(
-            "Making API request to:",
-            `/workouts/${workout._id}/complete`
-          );
-          const response = await api.put(`/workouts/${workout._id}/complete`);
-          console.log("Workout completed successfully:", response.data);
-          console.log("Workout status:", response.data.status);
-
-          // Small delay to ensure state is updated, then redirect
+          await api.put(`/workouts/${workout._id}/complete`);
           setTimeout(() => {
-            console.log("Redirecting to home...");
             navigate("/", { replace: true });
           }, 100);
         } catch (error) {
           console.error("Error completing workout:", error);
-          console.error("Error response:", error.response);
-          console.error("Error details:", error.response?.data);
           setToast({
             message:
               error.response?.data?.message || "Failed to complete workout",
@@ -192,10 +176,7 @@ const ActiveWorkout = () => {
           setCompleting(false);
         }
       },
-      onCancel: () => {
-        console.log("User cancelled");
-        setConfirmDialog(null);
-      },
+      onCancel: () => setConfirmDialog(null),
     });
   };
 
@@ -211,23 +192,8 @@ const ActiveWorkout = () => {
 
   const currentExercise = workout.exercises[activeExerciseIndex];
 
-  // Format elapsed time as HH:MM:SS or MM:SS
-  const formatTime = (seconds) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs
-        .toString()
-        .padStart(2, "0")}`;
-    }
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Toast Notification */}
       {toast && (
         <Toast
           message={toast.message}
@@ -236,7 +202,6 @@ const ActiveWorkout = () => {
         />
       )}
 
-      {/* Confirm Dialog */}
       {confirmDialog && (
         <ConfirmDialog
           message={confirmDialog.message}
@@ -245,78 +210,12 @@ const ActiveWorkout = () => {
         />
       )}
 
-      {/* Add Exercise Modal */}
       {showAddExerciseModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col animate-slideUp">
-            {/* Modal Header */}
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <MdFitnessCenter className="text-blue-600" />
-                Add Extra Exercise
-              </h3>
-              <button
-                onClick={() => {
-                  setShowAddExerciseModal(false);
-                  setSearchQuery("");
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition">
-                <IoClose className="text-2xl text-gray-600" />
-              </button>
-            </div>
-
-            {/* Search Bar */}
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
-              <div className="relative">
-                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
-                <input
-                  type="text"
-                  placeholder="Search exercises..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                />
-              </div>
-            </div>
-
-            {/* Exercise List */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-2">
-                {availableExercises
-                  .filter((ex) =>
-                    ex.name.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  .map((exercise) => (
-                    <button
-                      key={exercise._id}
-                      onClick={() => addExtraExercise(exercise)}
-                      className="w-full card-interactive p-4 bg-gradient-to-r from-gray-50 to-white hover:from-blue-50 hover:to-purple-50 text-left">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold text-gray-800">
-                            {exercise.name}
-                          </h4>
-                          <p className="text-sm text-gray-500">
-                            {exercise.category}
-                          </p>
-                        </div>
-                        <IoAddCircleOutline className="text-2xl text-blue-600" />
-                      </div>
-                    </button>
-                  ))}
-                {availableExercises.filter((ex) =>
-                  ex.name.toLowerCase().includes(searchQuery.toLowerCase())
-                ).length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <MdFitnessCenter className="text-5xl mx-auto mb-2 text-gray-300" />
-                    <p>No exercises found</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <AddExerciseModal
+          availableExercises={availableExercises}
+          onAdd={addExtraExercise}
+          onClose={() => setShowAddExerciseModal(false)}
+        />
       )}
 
       {/* Header */}
@@ -324,12 +223,7 @@ const ActiveWorkout = () => {
         <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-xl font-bold">{workout.dayName}</h1>
-            <div className="flex items-center gap-2 text-sm text-blue-100">
-              <IoTimeOutline />
-              <span className="font-mono font-semibold">
-                {formatTime(elapsedTime)}
-              </span>
-            </div>
+            <WorkoutTimer elapsedTime={elapsedTime} />
           </div>
           <button
             onClick={() => navigate("/")}
@@ -353,7 +247,6 @@ const ActiveWorkout = () => {
               )}
             </button>
           ))}
-          {/* Add Exercise Button */}
           <button
             onClick={() => {
               setShowAddExerciseModal(true);
@@ -368,33 +261,10 @@ const ActiveWorkout = () => {
 
       {/* Exercise Details */}
       <div className="p-4 space-y-4 pb-44">
-        {/* Exercise Header Card */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-xl p-6 text-white">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-1">
-                {currentExercise.exerciseName}
-              </h2>
-              <div className="flex items-center gap-3 text-sm text-blue-100">
-                <span>
-                  Target: {currentExercise.targetSets || 3} sets ×{" "}
-                  {currentExercise.targetReps || 10} reps
-                </span>
-                {!currentExercise.wasPlanned && (
-                  <span className="bg-purple-500/50 px-2 py-0.5 rounded-full text-xs">
-                    Extra
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-blue-200">Progress</div>
-              <div className="text-2xl font-bold">
-                {currentExercise.sets.length}/{currentExercise.targetSets || 3}
-              </div>
-            </div>
-          </div>
-        </div>
+        <ExerciseCard
+          exercise={currentExercise}
+          setCount={currentExercise.sets.length}
+        />
 
         {/* Current Sets Card */}
         <div className="card p-4">
@@ -416,7 +286,6 @@ const ActiveWorkout = () => {
                 <SetRow
                   key={setIdx}
                   set={set}
-                  setIndex={setIdx}
                   onUpdate={(weight, reps) =>
                     updateSet(activeExerciseIndex, setIdx, weight, reps)
                   }
@@ -426,7 +295,6 @@ const ActiveWorkout = () => {
             )}
           </div>
 
-          {/* Add Set Button */}
           <button
             onClick={() => addSet(activeExerciseIndex)}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3.5 rounded-xl font-bold text-base hover:shadow-lg active:scale-95 transform transition flex items-center justify-center gap-2">
@@ -435,7 +303,7 @@ const ActiveWorkout = () => {
           </button>
         </div>
 
-        {/* PR and Last Workout Stats - Below Add Set */}
+        {/* PR and Last Workout Stats */}
         {(currentExercise.pr || currentExercise.lastWorkout) && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -444,7 +312,6 @@ const ActiveWorkout = () => {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Personal Record */}
               {currentExercise.pr && (
                 <div className="card p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300">
                   <div className="flex items-center gap-2 mb-3">
@@ -488,7 +355,6 @@ const ActiveWorkout = () => {
                 </div>
               )}
 
-              {/* Last Workout */}
               {currentExercise.lastWorkout && (
                 <div className="card p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300">
                   <div className="flex items-center gap-2 mb-3">
@@ -541,7 +407,6 @@ const ActiveWorkout = () => {
       {/* Fixed Bottom Navigation Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-40">
         <div className="max-w-4xl mx-auto p-4">
-          {/* Exercise Navigation */}
           <div className="flex items-center gap-3 mb-3">
             <button
               onClick={() =>
@@ -553,7 +418,6 @@ const ActiveWorkout = () => {
               <span className="hidden sm:inline">Previous</span>
             </button>
 
-            {/* Exercise Counter */}
             <div className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-center min-w-[100px] shadow-lg">
               <div className="text-xs opacity-90">Exercise</div>
               <div className="text-lg">
@@ -577,7 +441,6 @@ const ActiveWorkout = () => {
             </button>
           </div>
 
-          {/* Complete Workout Button */}
           <button
             onClick={completeWorkout}
             disabled={completing}
@@ -586,95 +449,6 @@ const ActiveWorkout = () => {
             {completing ? "Completing..." : "Finish Workout"}
           </button>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const SetRow = ({ set, onUpdate, onDelete }) => {
-  const [weight, setWeight] = useState(set.weight);
-  const [reps, setReps] = useState(set.reps);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleSave = () => {
-    onUpdate(weight, reps);
-    setIsEditing(false);
-  };
-
-  if (isEditing) {
-    return (
-      <div className="bg-blue-50 border-2 border-blue-500 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-bold text-blue-600">Set {set.setNumber}</span>
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label className="text-xs text-gray-600 block mb-1">
-              Weight (kg)
-            </label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              step="0.5"
-              min="0"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-xs text-gray-600 block mb-1">Reps</label>
-            <input
-              type="number"
-              value={reps}
-              onChange={(e) => setReps(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={handleSave}
-            className="flex-1 bg-blue-500 text-white py-2 rounded-lg font-medium">
-            Save
-          </button>
-          <button
-            onClick={() => {
-              setWeight(set.weight);
-              setReps(set.reps);
-              setIsEditing(false);
-            }}
-            className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium">
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
-          {set.setNumber}
-        </div>
-        <div>
-          <div className="font-bold text-lg">
-            {set.weight} kg × {set.reps} reps
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-1">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-200">
-          Edit
-        </button>
-        <button
-          onClick={onDelete}
-          className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200">
-          ✕
-        </button>
       </div>
     </div>
   );
